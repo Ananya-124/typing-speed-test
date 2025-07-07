@@ -1,0 +1,71 @@
+/* Reset + global styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom right, #f0f4f8, #c3e0f3);
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Container styling */
+.container {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+/* Typing area */
+textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #90caf9;
+  border-radius: 8px;
+  resize: none;
+  font-family: monospace;
+}
+
+textarea:disabled {
+  background-color: #eee;
+}
+
+/* Display sentence */
+.text-display {
+  font-family: monospace;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  word-wrap: break-word;
+}
+
+/* Result styling */
+.results p {
+  font-size: 18px;
+  margin: 8px 0;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #42a5f5;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #1e88e5;
+}

@@ -24,10 +24,18 @@ function App() {
   const [canType, setCanType] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  const [username, setUsername] = useState("");
+  const [isNameSet, setIsNameSet] = useState(false);
+  const [highScores, setHighScores] = useState([]);
+
+  // Load sentence + high scores
   useEffect(() => {
     restart();
+    const savedScores = JSON.parse(localStorage.getItem("typing-highscores")) || [];
+    setHighScores(savedScores);
   }, []);
 
+  // Countdown effect
   useEffect(() => {
     if (countdown === null) return;
 
@@ -58,24 +66,48 @@ function App() {
 
     if (value === textToType) {
       setEndTime(new Date().getTime());
+      calculateResults(value);
     }
   }
 
   function updateLiveStats(input) {
     const now = new Date().getTime();
     const timeTaken = (now - startTime) / 60000;
-
     if (timeTaken === 0) return;
 
     const wordsTyped = input.trim().split(" ").length;
     const wpmResult = Math.round(wordsTyped / timeTaken);
     setWpm(wpmResult);
 
-    const correctChars = input
-      .split("")
-      .filter((char, i) => char === textToType[i]).length;
+    const correctChars = input.split("").filter((char, i) => char === textToType[i]).length;
     const acc = Math.round((correctChars / textToType.length) * 100);
     setAccuracy(acc);
+  }
+
+  function calculateResults(input) {
+    const timeTaken = (new Date().getTime() - startTime) / 60000;
+    const wordsTyped = input.trim().split(" ").length;
+    const wpmResult = Math.round(wordsTyped / timeTaken);
+    setWpm(wpmResult);
+
+    const correctChars = input.split("").filter((char, i) => char === textToType[i]).length;
+    const acc = Math.round((correctChars / textToType.length) * 100);
+    setAccuracy(acc);
+
+    // Save to high scores
+    const newScore = {
+      name: username,
+      wpm: wpmResult,
+      accuracy: acc,
+      date: new Date().toLocaleString(),
+    };
+
+    const updatedScores = [...highScores, newScore]
+      .sort((a, b) => b.wpm - a.wpm)
+      .slice(0, 5);
+
+    setHighScores(updatedScores);
+    localStorage.setItem("typing-highscores", JSON.stringify(updatedScores));
   }
 
   function restart() {
@@ -135,6 +167,71 @@ function App() {
         </button>
       </div>
 
+      {/* Ask for username before starting */}
+      {!isNameSet && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0, 0, 0, 0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "2rem",
+              borderRadius: "10px",
+              textAlign: "center",
+              width: "90%",
+              maxWidth: "400px",
+              color: "#000",
+            }}
+          >
+            <h2>Welcome to the Typing Test!</h2>
+            <p>Please enter your name to begin:</p>
+            <input
+              type="text"
+              placeholder="Your Name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{
+                padding: "10px",
+                fontSize: "16px",
+                marginTop: "1rem",
+                width: "80%",
+              }}
+            />
+            <br />
+            <button
+              onClick={() => {
+                if (username.trim() !== "") {
+                  setIsNameSet(true);
+                  setCountdown(3);
+                }
+              }}
+              style={{
+                marginTop: "1rem",
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           maxWidth: "700px",
@@ -167,7 +264,6 @@ function App() {
           {renderColoredText()}
         </div>
 
-        {/* Countdown or textarea */}
         {countdown !== null ? (
           <div
             style={{
@@ -203,7 +299,6 @@ function App() {
           />
         )}
 
-        {/* Stats */}
         <div style={{ marginTop: "2rem" }}>
           <p>WPM: {wpm}</p>
           <p>Accuracy: {accuracy}%</p>
@@ -230,6 +325,20 @@ function App() {
             </>
           )}
         </div>
+
+        {/* Leaderboard */}
+        {highScores.length > 0 && (
+          <div style={{ marginTop: "2rem", textAlign: "left" }}>
+            <h2>🏆 Top 5 High Scores</h2>
+            <ol style={{ paddingLeft: "1.5rem" }}>
+              {highScores.map((score, index) => (
+                <li key={index}>
+                  <strong>{score.name}</strong> - {score.wpm} WPM, {score.accuracy}% ({score.date})
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
       </div>
     </div>
   );
